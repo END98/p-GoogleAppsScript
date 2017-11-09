@@ -1,0 +1,33 @@
+var channel_access_token = ''; 
+
+function doPost(e) {
+  var events = JSON.parse(e.postData.contents).events;
+  events.forEach(function(event) {
+    if(event.type == "message"){lineReply(event);}
+    else if(event.type == "follow"){ /* 友だち追加・ブロック解除 */ }
+    else if(event.type == "unfollow"){ /* ブロック */ }
+ });
+}
+
+function lineReply(e) {
+  var postData = {
+    "replyToken" : e.replyToken,
+    "messages" : [
+      {
+        "type" : "text",
+        "text" : ((e.message.type=="text")? e.message.text : "Text以外")
+      }
+    ]
+  };
+
+  var options = {
+    "method" : "post",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Authorization" : "Bearer " + channel_access_token
+    },
+    "payload" : JSON.stringify(postData)
+  };
+
+  UrlFetchApp.fetch("https://api.line.me/v2/bot/message/reply", options);
+}
